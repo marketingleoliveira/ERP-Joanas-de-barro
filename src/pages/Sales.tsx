@@ -21,7 +21,8 @@ type Sale = {
 };
 
 export default function SalesPage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const [importOpen, setImportOpen] = useState(false);
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
