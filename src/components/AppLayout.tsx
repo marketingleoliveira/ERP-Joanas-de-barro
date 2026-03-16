@@ -4,6 +4,7 @@ import { LayoutDashboard, Package, ArrowLeftRight, DollarSign, ShoppingCart, Use
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import SupportFAQ from '@/components/SupportFAQ';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -63,11 +64,12 @@ export default function AppLayout() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-sidebar-border space-y-1">
           <div className="text-sm mb-2">
             <p className="font-medium text-sidebar-accent-foreground">{profile?.display_name || 'Usuário'}</p>
             <p className="text-sidebar-foreground/60 text-xs capitalize">{userRole || 'seller'}</p>
           </div>
+          <SupportFAQ />
           <Button variant="ghost" size="sm" className="w-full justify-start text-sidebar-foreground hover:text-destructive" onClick={handleSignOut}>
             <LogOut size={16} className="mr-2" /> Sair
           </Button>
