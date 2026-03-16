@@ -21,7 +21,9 @@ type Product = {
 type Category = { id: string; name: string };
 
 export default function ProductsPage() {
+  const { userRole } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
