@@ -83,7 +83,14 @@ export default function ProductsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Produtos</h1>
-        <Button onClick={openNew}><Plus size={16} className="mr-1" /> Novo Produto</Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={openNew}><Plus size={16} className="mr-1" /> Novo Produto</Button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
