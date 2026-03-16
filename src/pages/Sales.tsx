@@ -8,8 +8,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Eye, Search, Trash2 } from 'lucide-react';
+import { Plus, Eye, Search, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import ExcelImport from '@/components/ExcelImport';
 
 type Product = { id: string; name: string; sell_price: number; current_stock: number };
 type Customer = { id: string; name: string };
