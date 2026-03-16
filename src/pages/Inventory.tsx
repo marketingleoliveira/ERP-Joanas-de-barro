@@ -20,7 +20,8 @@ type Movement = {
 };
 
 export default function InventoryPage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const [importOpen, setImportOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
