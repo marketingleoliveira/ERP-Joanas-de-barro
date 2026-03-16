@@ -19,7 +19,8 @@ type Transaction = {
 };
 
 export default function FinancePage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const [importOpen, setImportOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ type: 'income', category: '', description: '', amount: '', date: new Date().toISOString().split('T')[0], is_paid: false });
