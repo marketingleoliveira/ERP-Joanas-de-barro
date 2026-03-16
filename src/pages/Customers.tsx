@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Pencil, Search } from 'lucide-react';
+import { Plus, Pencil, Search, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import ExcelImport from '@/components/ExcelImport';
 
 type Customer = { id: string; name: string; email: string | null; phone: string | null; address: string | null; notes: string | null };
 
