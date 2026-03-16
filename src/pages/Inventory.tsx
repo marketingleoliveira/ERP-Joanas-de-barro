@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ArrowUp, ArrowDown, RefreshCw } from 'lucide-react';
+import { Plus, ArrowUp, ArrowDown, RefreshCw, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import ExcelImport from '@/components/ExcelImport';
 
 type Product = { id: string; name: string; current_stock: number; min_stock: number; unit: string };
 type Movement = {
@@ -19,7 +20,8 @@ type Movement = {
 };
 
 export default function InventoryPage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const [importOpen, setImportOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -77,9 +79,16 @@ export default function InventoryPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Controle de Estoque</h1>
-        <Button onClick={() => { setForm({ product_id: '', type: 'entry', quantity: '', reason: '' }); setDialogOpen(true); }}>
-          <Plus size={16} className="mr-1" /> Nova Movimentação
-        </Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={() => { setForm({ product_id: '', type: 'entry', quantity: '', reason: '' }); setDialogOpen(true); }}>
+            <Plus size={16} className="mr-1" /> Nova Movimentação
+          </Button>
+        </div>
       </div>
 
       {/* Low stock alerts */}
@@ -168,6 +177,8 @@ export default function InventoryPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="inventory" open={importOpen} onOpenChange={setImportOpen} onSuccess={() => { fetchProducts(); fetchMovements(); }} />
     </div>
   );
 }

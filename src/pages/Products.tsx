@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Search } from 'lucide-react';
+import { Plus, Pencil, Search, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import ExcelImport from '@/components/ExcelImport';
 
 type Product = {
   id: string; name: string; sku: string | null; cost_price: number; sell_price: number;
@@ -19,7 +21,9 @@ type Product = {
 type Category = { id: string; name: string };
 
 export default function ProductsPage() {
+  const { userRole } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -79,7 +83,14 @@ export default function ProductsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Produtos</h1>
-        <Button onClick={openNew}><Plus size={16} className="mr-1" /> Novo Produto</Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={openNew}><Plus size={16} className="mr-1" /> Novo Produto</Button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">
@@ -182,6 +193,8 @@ export default function ProductsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="products" open={importOpen} onOpenChange={setImportOpen} onSuccess={fetchProducts} />
     </div>
   );
 }

@@ -8,8 +8,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Eye, Search, Trash2 } from 'lucide-react';
+import { Plus, Eye, Search, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import ExcelImport from '@/components/ExcelImport';
 
 type Product = { id: string; name: string; sell_price: number; current_stock: number };
 type Customer = { id: string; name: string };
@@ -20,7 +21,8 @@ type Sale = {
 };
 
 export default function SalesPage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const [importOpen, setImportOpen] = useState(false);
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -116,7 +118,14 @@ export default function SalesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Vendas</h1>
-        <Button onClick={() => setDialogOpen(true)}><Plus size={16} className="mr-1" /> Nova Venda</Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={() => setDialogOpen(true)}><Plus size={16} className="mr-1" /> Nova Venda</Button>
+        </div>
       </div>
 
       <Card className="glass-card">
@@ -235,6 +244,8 @@ export default function SalesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="sales" open={importOpen} onOpenChange={setImportOpen} onSuccess={fetchSales} />
     </div>
   );
 }

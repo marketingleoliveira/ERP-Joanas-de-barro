@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, TrendingUp, TrendingDown, Check, X } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Check, X, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import ExcelImport from '@/components/ExcelImport';
 
 type Transaction = {
   id: string; type: string; category: string; description: string | null;
@@ -18,7 +19,8 @@ type Transaction = {
 };
 
 export default function FinancePage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const [importOpen, setImportOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ type: 'income', category: '', description: '', amount: '', date: new Date().toISOString().split('T')[0], is_paid: false });
@@ -59,9 +61,16 @@ export default function FinancePage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Financeiro</h1>
-        <Button onClick={() => { setForm({ type: 'income', category: '', description: '', amount: '', date: new Date().toISOString().split('T')[0], is_paid: false }); setDialogOpen(true); }}>
-          <Plus size={16} className="mr-1" /> Nova Transação
-        </Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={() => { setForm({ type: 'income', category: '', description: '', amount: '', date: new Date().toISOString().split('T')[0], is_paid: false }); setDialogOpen(true); }}>
+            <Plus size={16} className="mr-1" /> Nova Transação
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -172,6 +181,8 @@ export default function FinancePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="finance" open={importOpen} onOpenChange={setImportOpen} onSuccess={fetchTransactions} />
     </div>
   );
 }
