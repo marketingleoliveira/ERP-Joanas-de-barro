@@ -61,9 +61,16 @@ export default function FinancePage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Financeiro</h1>
-        <Button onClick={() => { setForm({ type: 'income', category: '', description: '', amount: '', date: new Date().toISOString().split('T')[0], is_paid: false }); setDialogOpen(true); }}>
-          <Plus size={16} className="mr-1" /> Nova Transação
-        </Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={() => { setForm({ type: 'income', category: '', description: '', amount: '', date: new Date().toISOString().split('T')[0], is_paid: false }); setDialogOpen(true); }}>
+            <Plus size={16} className="mr-1" /> Nova Transação
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
