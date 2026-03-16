@@ -244,6 +244,8 @@ export default function SalesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="sales" open={importOpen} onOpenChange={setImportOpen} onSuccess={fetchSales} />
     </div>
   );
 }

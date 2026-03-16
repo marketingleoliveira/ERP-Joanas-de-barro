@@ -193,6 +193,8 @@ export default function ProductsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="products" open={importOpen} onOpenChange={setImportOpen} onSuccess={fetchProducts} />
     </div>
   );
 }

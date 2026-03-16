@@ -177,6 +177,8 @@ export default function InventoryPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="inventory" open={importOpen} onOpenChange={setImportOpen} onSuccess={() => { fetchProducts(); fetchMovements(); }} />
     </div>
   );
 }

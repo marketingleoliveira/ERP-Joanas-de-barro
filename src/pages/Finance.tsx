@@ -181,6 +181,8 @@ export default function FinancePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExcelImport target="finance" open={importOpen} onOpenChange={setImportOpen} onSuccess={fetchTransactions} />
     </div>
   );
 }
