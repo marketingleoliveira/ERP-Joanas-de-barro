@@ -79,9 +79,16 @@ export default function InventoryPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold font-display">Controle de Estoque</h1>
-        <Button onClick={() => { setForm({ product_id: '', type: 'entry', quantity: '', reason: '' }); setDialogOpen(true); }}>
-          <Plus size={16} className="mr-1" /> Nova Movimentação
-        </Button>
+        <div className="flex gap-2">
+          {userRole === 'admin' && (
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload size={16} className="mr-1" /> Importar Excel
+            </Button>
+          )}
+          <Button onClick={() => { setForm({ product_id: '', type: 'entry', quantity: '', reason: '' }); setDialogOpen(true); }}>
+            <Plus size={16} className="mr-1" /> Nova Movimentação
+          </Button>
+        </div>
       </div>
 
       {/* Low stock alerts */}
