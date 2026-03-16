@@ -4,6 +4,7 @@ import { LayoutDashboard, Package, ArrowLeftRight, DollarSign, ShoppingCart, Use
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import SupportFAQ from '@/components/SupportFAQ';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
