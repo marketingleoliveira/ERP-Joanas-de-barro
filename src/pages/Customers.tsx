@@ -14,7 +14,9 @@ import ExcelImport from '@/components/ExcelImport';
 type Customer = { id: string; name: string; email: string | null; phone: string | null; address: string | null; notes: string | null };
 
 export default function CustomersPage() {
+  const { userRole } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [importOpen, setImportOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Customer | null>(null);
