@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Search, Upload } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Pencil, Search, Upload, Trash2, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import ExcelImport from '@/components/ExcelImport';
 
@@ -18,7 +19,7 @@ type Product = {
   categories?: { name: string } | null;
 };
 
-type Category = { id: string; name: string };
+type Category = { id: string; name: string; description: string | null };
 
 export default function ProductsPage() {
   const { userRole } = useAuth();
@@ -26,11 +27,17 @@ export default function ProductsPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
+  const [catSearch, setCatSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState({
     name: '', sku: '', cost_price: '', sell_price: '', min_stock: '0', unit: 'un', category_id: '', is_active: true
   });
+
+  // Category dialog state
+  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  const [editingCat, setEditingCat] = useState<Category | null>(null);
+  const [catForm, setCatForm] = useState({ name: '', description: '' });
 
   useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
@@ -77,7 +84,47 @@ export default function ProductsPage() {
     fetchProducts();
   };
 
+  // Category CRUD
+  const openNewCat = () => {
+    setEditingCat(null);
+    setCatForm({ name: '', description: '' });
+    setCatDialogOpen(true);
+  };
+
+  const openEditCat = (c: Category) => {
+    setEditingCat(c);
+    setCatForm({ name: c.name, description: c.description || '' });
+    setCatDialogOpen(true);
+  };
+
+  const handleSaveCat = async () => {
+    if (!catForm.name.trim()) { toast.error('Nome da categoria é obrigatório'); return; }
+    const payload = { name: catForm.name.trim(), description: catForm.description.trim() || null };
+    if (editingCat) {
+      const { error } = await supabase.from('categories').update(payload).eq('id', editingCat.id);
+      if (error) { toast.error(error.message); return; }
+      toast.success('Categoria atualizada!');
+    } else {
+      const { error } = await supabase.from('categories').insert(payload);
+      if (error) { toast.error(error.message); return; }
+      toast.success('Categoria criada!');
+    }
+    setCatDialogOpen(false);
+    fetchCategories();
+    fetchProducts();
+  };
+
+  const handleDeleteCat = async (c: Category) => {
+    const inUse = products.some(p => p.category_id === c.id);
+    if (inUse) { toast.error('Categoria em uso por produtos. Remova a associação primeiro.'); return; }
+    const { error } = await supabase.from('categories').delete().eq('id', c.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Categoria excluída!');
+    fetchCategories();
+  };
+
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredCats = categories.filter(c => c.name.toLowerCase().includes(catSearch.toLowerCase()));
 
   return (
     <div className="space-y-4">
@@ -93,59 +140,121 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-        <Input placeholder="Buscar produto..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
-      </div>
+      <Tabs defaultValue="products">
+        <TabsList>
+          <TabsTrigger value="products">Produtos</TabsTrigger>
+          <TabsTrigger value="categories"><Tag size={14} className="mr-1" /> Categorias</TabsTrigger>
+        </TabsList>
 
-      <Card className="glass-card">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead className="text-right">Custo</TableHead>
-                <TableHead className="text-right">Venda</TableHead>
-                <TableHead className="text-right">Estoque</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(p => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{p.sku || '—'}</TableCell>
-                  <TableCell>{p.categories?.name || '—'}</TableCell>
-                  <TableCell className="text-right">R$ {Number(p.cost_price).toFixed(2)}</TableCell>
-                  <TableCell className="text-right">R$ {Number(p.sell_price).toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
-                    <span className={p.current_stock <= p.min_stock ? 'text-destructive font-bold' : ''}>
-                      {p.current_stock} {p.unit}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={p.is_active ? 'default' : 'secondary'}>
-                      {p.is_active ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
-                      <Pencil size={14} />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Nenhum produto encontrado.</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        <TabsContent value="products" className="space-y-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+            <Input placeholder="Buscar produto..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          </div>
 
+          <Card className="glass-card">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>SKU</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead className="text-right">Custo</TableHead>
+                    <TableHead className="text-right">Venda</TableHead>
+                    <TableHead className="text-right">Estoque</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{p.sku || '—'}</TableCell>
+                      <TableCell>{p.categories?.name || '—'}</TableCell>
+                      <TableCell className="text-right">R$ {Number(p.cost_price).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">R$ {Number(p.sell_price).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">
+                        <span className={p.current_stock <= p.min_stock ? 'text-destructive font-bold' : ''}>
+                          {p.current_stock} {p.unit}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={p.is_active ? 'default' : 'secondary'}>
+                          {p.is_active ? 'Ativo' : 'Inativo'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
+                          <Pencil size={14} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filtered.length === 0 && (
+                    <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Nenhum produto encontrado.</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="categories" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+              <Input placeholder="Buscar categoria..." value={catSearch} onChange={e => setCatSearch(e.target.value)} className="pl-9" />
+            </div>
+            <Button onClick={openNewCat}><Plus size={16} className="mr-1" /> Nova Categoria</Button>
+          </div>
+
+          <Card className="glass-card">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Descrição</TableHead>
+                    <TableHead className="text-right">Produtos</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCats.map(c => {
+                    const count = products.filter(p => p.category_id === c.id).length;
+                    return (
+                      <TableRow key={c.id}>
+                        <TableCell className="font-medium">{c.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{c.description || '—'}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge variant="secondary">{count}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1 justify-end">
+                            <Button variant="ghost" size="icon" onClick={() => openEditCat(c)}>
+                              <Pencil size={14} />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteCat(c)} className="text-destructive hover:text-destructive">
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {filteredCats.length === 0 && (
+                    <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">Nenhuma categoria encontrada.</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Product Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -190,6 +299,26 @@ export default function ProductsPage() {
               </div>
             </div>
             <Button onClick={handleSave} className="w-full">{editing ? 'Salvar Alterações' : 'Cadastrar Produto'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Dialog */}
+      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{editingCat ? 'Editar Categoria' : 'Nova Categoria'}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <Label>Nome</Label>
+              <Input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>Descrição</Label>
+              <Input value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} />
+            </div>
+            <Button onClick={handleSaveCat} className="w-full">{editingCat ? 'Salvar' : 'Criar Categoria'}</Button>
           </div>
         </DialogContent>
       </Dialog>
