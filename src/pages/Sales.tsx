@@ -138,6 +138,7 @@ export default function SalesPage() {
                 <TableHead>Pagamento</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -150,11 +151,26 @@ export default function SalesPage() {
                     <TableCell>{paymentLabels[s.payment_method] || s.payment_method}</TableCell>
                     <TableCell className="text-right font-medium">R$ {Number(s.total).toFixed(2)}</TableCell>
                     <TableCell><Badge variant={st.variant}>{st.label}</Badge></TableCell>
+                    <TableCell>
+                      {userRole === 'admin' && (
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={async () => {
+                          if (!confirm('Excluir esta venda? Os itens e a transação financeira vinculados também serão removidos. Esta ação não pode ser desfeita.')) return;
+                          await supabase.from('sale_items').delete().eq('sale_id', s.id);
+                          await supabase.from('financial_transactions').delete().eq('sale_id', s.id);
+                          const { error } = await supabase.from('sales').delete().eq('id', s.id);
+                          if (error) { toast.error(error.message); return; }
+                          toast.success('Venda excluída!');
+                          fetchSales();
+                        }}>
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })}
               {sales.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nenhuma venda registrada.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhuma venda registrada.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

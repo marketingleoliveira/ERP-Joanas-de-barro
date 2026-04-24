@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Pencil, Search, Upload } from 'lucide-react';
+import { Plus, Pencil, Search, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ExcelImport from '@/components/ExcelImport';
 
@@ -97,7 +97,20 @@ export default function CustomersPage() {
                   <TableCell className="text-muted-foreground">{c.phone || '—'}</TableCell>
                   <TableCell className="text-muted-foreground">{c.address || '—'}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(c)}><Pencil size={14} /></Button>
+                    <div className="flex gap-1 justify-end">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(c)}><Pencil size={14} /></Button>
+                      {userRole === 'admin' && (
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={async () => {
+                          if (!confirm(`Excluir cliente "${c.name}"? Esta ação não pode ser desfeita.`)) return;
+                          const { error } = await supabase.from('customers').delete().eq('id', c.id);
+                          if (error) { toast.error(error.message); return; }
+                          toast.success('Cliente excluído!');
+                          fetchCustomers();
+                        }}>
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

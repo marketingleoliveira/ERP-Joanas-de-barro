@@ -186,9 +186,22 @@ export default function ProductsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
-                          <Pencil size={14} />
-                        </Button>
+                        <div className="flex gap-1 justify-end">
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
+                            <Pencil size={14} />
+                          </Button>
+                          {userRole === 'admin' && (
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={async () => {
+                              if (!confirm(`Excluir produto "${p.name}"? Esta ação não pode ser desfeita.`)) return;
+                              const { error } = await supabase.from('products').delete().eq('id', p.id);
+                              if (error) { toast.error(error.message); return; }
+                              toast.success('Produto excluído!');
+                              fetchProducts();
+                            }}>
+                              <Trash2 size={14} />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

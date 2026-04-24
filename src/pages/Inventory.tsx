@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ArrowUp, ArrowDown, RefreshCw, Upload } from 'lucide-react';
+import { Plus, ArrowUp, ArrowDown, RefreshCw, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ExcelImport from '@/components/ExcelImport';
 
@@ -116,6 +116,7 @@ export default function InventoryPage() {
                 <TableHead>Tipo</TableHead>
                 <TableHead className="text-right">Quantidade</TableHead>
                 <TableHead>Motivo</TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -128,11 +129,24 @@ export default function InventoryPage() {
                     <TableCell><Badge variant={cfg.color}>{cfg.label}</Badge></TableCell>
                     <TableCell className="text-right">{m.quantity}</TableCell>
                     <TableCell className="text-muted-foreground">{m.reason || '—'}</TableCell>
+                    <TableCell>
+                      {userRole === 'admin' && (
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={async () => {
+                          if (!confirm('Excluir esta movimentação? O estoque do produto NÃO será revertido automaticamente. Esta ação não pode ser desfeita.')) return;
+                          const { error } = await supabase.from('inventory_movements').delete().eq('id', m.id);
+                          if (error) { toast.error(error.message); return; }
+                          toast.success('Movimentação excluída!');
+                          fetchMovements();
+                        }}>
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })}
               {movements.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nenhuma movimentação registrada.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhuma movimentação registrada.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
