@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, TrendingUp, TrendingDown, Check, X, Upload } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Check, X, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ExcelImport from '@/components/ExcelImport';
 
@@ -126,9 +126,22 @@ export default function FinancePage() {
                     <Badge variant={t.is_paid ? 'default' : 'secondary'}>{t.is_paid ? 'Pago' : 'Pendente'}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => togglePaid(t)} title={t.is_paid ? 'Marcar pendente' : 'Marcar pago'}>
-                      {t.is_paid ? <X size={14} /> : <Check size={14} />}
-                    </Button>
+                    <div className="flex gap-1 justify-end">
+                      <Button variant="ghost" size="icon" onClick={() => togglePaid(t)} title={t.is_paid ? 'Marcar pendente' : 'Marcar pago'}>
+                        {t.is_paid ? <X size={14} /> : <Check size={14} />}
+                      </Button>
+                      {userRole === 'admin' && (
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={async () => {
+                          if (!confirm('Excluir esta transação? Esta ação não pode ser desfeita.')) return;
+                          const { error } = await supabase.from('financial_transactions').delete().eq('id', t.id);
+                          if (error) { toast.error(error.message); return; }
+                          toast.success('Transação excluída!');
+                          fetchTransactions();
+                        }}>
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
