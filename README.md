@@ -1,26 +1,45 @@
-# Joana's Business Hub
+# Joana's Business Hub (joanasdebarro)
 
-preciso de um sistema de controle de estoque e financeiro completo e profissional para a empresa https://www.joanasdebarro.com.br/ faça. Com banco de dados, registro e tudo mais.
+Sistema corporativo completo para gestão financeira, controle de estoque e operações comerciais desenvolvido para a marca **Joanas de Barro**.
 
-This project was built with [Lovable](https://lovable.dev).
+🔗 **Live App:** [joanasdebarro.lovable.app](https://joanasdebarro.lovable.app)  
+🌐 **Site Oficial:** [www.joanasdebarro.com.br](https://www.joanasdebarro.com.br)  
+💼 **Portfólio do Desenvolvedor:** [portfolioleoliveira.lovable.app](https://portfolioleoliveira.lovable.app)
 
-**Live app**: https://joanasdebarro.lovable.app
+---
 
-## Build with Lovable
+## 📌 Sobre o Projeto
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/2828c2d9-b14e-4ec7-900e-93a2b0236912).
+O **Joana's Business Hub** foi construído para centralizar as operações do negócio em uma única plataforma integrada. O sistema combina controle rígido de movimentação de produtos, gestão de fluxo de caixa/financeiro e recursos avançados para importação de planilhas de estoque e planilhas financeiras (Excel).
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+---
 
-## Development
+## ⚡ Principais Funcionalidades
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+* **Controle de Estoque Inteligente:** Gestão de entradas, saídas, níveis mínimos e catálogo de produtos.
+* **Gestão Financeira:** Controle de receitas, despesas, faturamento e relatórios de fluxo de caixa.
+* **Importação de Dados:** Módulo habilitado para leitura e processamento de dados via planilhas do Excel.
+* **Persistência & Segurança:** Banco de dados relacional integrado via Supabase com autenticação de usuários.
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+* **Frontend:** TypeScript, React, Vite, Tailwind CSS, shadcn/ui
+* **Backend & Banco de Dados:** Supabase (PL/pgSQL)
+* **Testes e Qualidade:** Playwright, Vitest
+* **Gerenciador de Pacotes:** Bun / npm
+* **Desenvolvimento Acelerado:** Lovable
+
+---
+
+## 🚀 Como Executar o Projeto
+
+### Pré-requisitos
+Certifique-se de ter o **Node.js** e o **npm** (ou **Bun**) instalados em sua máquina.
+
+### Passo a Passo
+
+1. **Clonar o repositório:**
+   ```bash
+   git clone [https://github.com/RennanLucas/joanasdebarro.git](https://github.com/RennanLucas/joanasdebarro.git)
